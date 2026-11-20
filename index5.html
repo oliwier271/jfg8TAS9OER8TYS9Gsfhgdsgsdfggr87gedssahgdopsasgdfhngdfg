@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AndrzejKotwica Bank — Twój bank. Twój Minecraft.</title>
+    <style>
+        :root {
+            --bg-dark: #070d0a;
+            --card-bg: rgba(18, 30, 24, 0.84);
+            --card-border: rgba(52, 84, 68, 0.75);
+            --input-bg: rgba(12, 20, 16, 0.92);
+            --accent-yellow: #f7c948;
+            --accent-yellow-hover: #ffd666;
+            --text-main: #f1f5f2;
+            --text-muted: #9eb3a8;
+            --green-dot: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .video-bg-wrapper {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -3;
+            overflow: hidden;
+            pointer-events: none;
+            background: radial-gradient(circle at 60% 35%, #193627 0%, #070d0a 75%);
+        }
+
+        .video-motion-layer {
+            position: absolute;
+            inset: -8%;
+            width: 116%;
+            height: 116%;
+            animation: kenBurnsBg 24s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+
+        .video-motion-layer iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 56.25vw;
+            min-height: 100vh;
+            min-width: 177.77vh;
+            transform: translate(-50%, -50%) scale(1.12);
+            border: none;
+            pointer-events: none;
+            filter: brightness(0.62) contrast(1.12) saturate(1.18);
+        }
+
+        @keyframes kenBurnsBg {
+            0% { transform: scale(1.03) translate3d(-1.5%, -1%, 0); }
+            50% { transform: scale(1.1) translate3d(1.5%, 1%, 0); }
+            100% { transform: scale(1.05) translate3d(-1%, 1.5%, 0); }
+        }
+
+        #canvasBg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -3;
+            pointer-events: none;
+            display: none;
+        }
+
+        .video-tint-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 75% 20%, rgba(22, 48, 35, 0.35) 0%, rgba(7, 13, 10, 0.72) 100%),
+                linear-gradient(180deg, rgba(7, 13, 10, 0.45) 0%, rgba(7, 13, 10, 0.78) 100%);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1050px;
+            padding: 24px 20px;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 24px;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            font-size: 32px;
+            filter: drop-shadow(0 0 8px rgba(247, 201, 72, 0.35));
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-title span {
+            color: var(--accent-yellow);
+        }
+
+        .brand-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: rgba(18, 30, 24, 0.85);
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(8px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--green-dot);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--green-dot);
+        }
+
+        .sound-btn {
+            background: rgba(247, 201, 72, 0.18);
+            color: var(--accent-yellow);
+            border: 2px solid var(--accent-yellow);
+            padding: 11px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+        }
+
+        .sound-btn:hover {
+            background: var(--accent-yellow);
+            color: #141414;
+            transform: translateY(-1px);
+        }
+
+        .sound-btn.muted {
+            background: rgba(18, 30, 24, 0.92);
+            color: var(--text-main);
+            border-color: var(--card-border);
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent-yellow);
+        }
+
+        .nav-btn.active {
+            background: var(--accent-yellow);
+            color: #141414;
+            border-color: var(--accent-yellow);
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        .hero-title span {
+            color: var(--accent-yellow);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(12px);
+        }
+
+        .card-highlight {
+            font-size: 30px;
+            font-weight: 800;
+            color: var(--accent-yellow);
+            margin-bottom: 14px;
+        }
+
+        .card-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin-bottom: 18px;
+        }
+
+        .card-note {
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--text-muted);
+        }
+
+        .card-heading {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .input-field {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 14px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent-yellow);
+        }
+
+        .btn-primary {
+            background: var(--accent-yellow);
+            color: #141414;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-yellow-hover);
+        }
+
+        .btn-secondary {
+            background: rgba(12, 20, 16, 0.5);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+
+        .verify-info {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-top: 12px;
+        }
+
+        .alert {
+            display: none;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+        .alert.show { display: block; }
+        .alert-success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.45);
+            color: #86efac;
+        }
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            color: #fca5a5;
+        }
+
+        .bg-option-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .bg-option-card {
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            padding: 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.15s;
+        }
+
+        .bg-option-card.selected {
+            border-color: var(--accent-yellow);
+            background: rgba(247, 201, 72, 0.08);
+        }
+
+        .spotify-section { margin-top: 24px; }
+        .spotify-bar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .spotify-bar .input-field { margin-bottom: 0; flex: 1; min-width: 240px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--card-border); font-size: 14px; }
+        th { color: var(--text-muted); font-weight: 600; }
+
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .badge-ok { background: rgba(34, 197, 94, 0.22); color: #4ade80; }
+        .badge-wait { background: rgba(247, 201, 72, 0.22); color: #f7c948; }
+        .badge-err { background: rgba(239, 68, 68, 0.22); color: #fca5a5; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 24px 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 16px;
+        }
+        .modal-backdrop.open { display: flex; }
+        .modal-box {
+            background: #14221b;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 26px;
+            width: 100%;
+            max-width: 430px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="video-bg-wrapper" id="ytBgWrapper">
+    <div class="video-motion-layer">
+        <iframe
+            id="ytBgFrame"
+            src="https://www.youtube.com/embed/oBHLy4MRSt8?autoplay=1&mute=0&loop=1&playlist=oBHLy4MRSt8&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&iv_load_policy=3"
+            title="Tło wideo"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen>
+        </iframe>
+    </div>
+</div>
+
+<canvas id="canvasBg"></canvas>
+<div class="video-tint-overlay" id="tintOverlay"></div>
+
+<div class="container">
+    <header>
+        <div class="brand">
+            <div class="brand-icon">🍌</div>
+            <div>
+                <div class="brand-title">AndrzejKotwica <span>Bank</span></div>
+                <div class="brand-sub">To jest oficjalny bank BananaSMP, tylko bank stworzony przez gracza AndrzejKotwica!</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button type="button" id="bgSoundToggle" class="sound-btn" onclick="toggleBgSound()">🔊 Dźwięk włączony — Wycisz</button>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                <span>Online / BananaSMP</span>
+            </div>
+        </div>
+    </header>
+
+    <nav id="mainNav">
+        <button class="nav-btn active" data-tab="account" onclick="switchTab('account')">🏦 Moje konto</button>
+        <button class="nav-btn" data-tab="ranking" onclick="switchTab('ranking')">🏆 Ranking</button>
+        <button class="nav-btn" data-tab="loans" onclick="switchTab('loans')">💼 Pożyczki</button>
+        <button class="nav-btn" data-tab="settings" onclick="switchTab('settings')">⚙️ Ustawienia</button>
+        <button class="nav-btn" id="adminNavBtn" data-tab="admin" style="display: none; border-color: #22c55e; color: #4ade80;" onclick="switchTab('admin')">🛡️ Panel Admina</button>
+    </nav>
+
+    <div id="alertBox" class="alert"></div>
+
+    <div id="tab-account" class="tab-content active">
+        <h1 class="hero-title">Twój bank. <span>Twój Minecraft.</span></h1>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-highlight">7% dziennie</div>
+                <p class="card-text">
+                    Kapitał i bonus są rozliczane osobno. Wpłaty od 50 000 $, wypłaty z limitem 5 minut.
+                </p>
+                <p class="card-note">
+                    oficjalny bank stworzony przez gracza AndrzejKotwica. Wpisz swój nick z serwera BananaSMP, aby sprawdzić konto lub rozpocząć weryfikację.
+                </p>
+            </div>
+
+            <div class="card">
+                <div id="playerSection"></div>
+
+                <div style="margin-top: 14px; border-top: 1px solid var(--card-border); padding-top: 14px;">
+                    <button type="button" id="adminModalTrigger" class="btn-secondary" onclick="openAdminModal()">🔑 Panel administratora</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card spotify-section">
+            <h2 class="card-heading">🎵 Odtwarzacz Spotify — Muzyka podczas gry</h2>
+            <p class="card-note" style="margin-bottom: 12px;">
+                Wklej link do swojej playlisty, albumu lub utworu ze Spotify (np. <code>https://open.spotify.com/playlist/...</code>), aby słuchać bezpośrednio na stronie banku.
+            </p>
+            <div class="spotify-bar">
+                <input type="text" id="spotifyUrlInput" class="input-field" placeholder="Wklej link do playlisty Spotify tutaj...">
+                <button type="button" class="btn-primary" onclick="loadSpotifyEmbed()">▶ Załaduj playlistę</button>
+            </div>
+            <div id="spotifyPlayerContainer">
+                <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-ranking" class="tab-content">
+        <h1 class="hero-title">Ranking <span>najbogatszych</span></h1>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Gracz</th>
+                        <th>Status</th>
+                        <th>Kapitał</th>
+                        <th>Bonus</th>
+                    </tr>
+                </thead>
+                <tbody id="rankingBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="tab-loans" class="tab-content">
+        <h1 class="hero-title">Pożyczki <span>w AndrzejKotwica Bank</span></h1>
+        <div class="grid-2">
+            <div class="card">
+                <h2 class="card-heading">Złóż wniosek o pożyczkę</h2>
+                <div id="loanFormContainer"></div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-heading">Ostatnie wnioski</h2>
+                <div id="loansListContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-settings" class="tab-content">
+        <h1 class="hero-title">Ustawienia <span>tła strony</span></h1>
+        <div class="card">
+            <h2 class="card-heading">🎨 Wybór tła strony</h2>
+            <p class="card-note" style="margin-bottom: 14px;">Wybierz styl animowanego tła, który najbardziej Ci odpowiada:</p>
+
+            <div class="bg-option-grid">
+                <div class="bg-option-card" id="opt-yt-default" onclick="setBgMode('yt-default')">
+                    <div>
+                        <strong>🎬 Główne wideo: APTEKARZE — PRZY TOBIE</strong>
+                        <div class="card-note">Animowany klip YouTube w pełnym ekranie z ruchem kamery</div>
+                    </div>
+                    <span id="check-yt-default"></span>
+                </div>
+
+                <div class="bg-option-card" id="opt-yt-custom" onclick="setBgMode('yt-custom')">
+                    <div>
+                        <strong>📺 Własny filmik / teledysk YouTube</strong>
+                        <div class="card-note">Wklej dowolny link z YouTube poniżej</div>
+                    </div>
+                    <span id="check-yt-custom"></span>
+                </div>
+
+                <div class="bg-option-card" id="opt-canvas" onclick="setBgMode('canvas')">
+                    <div>
+                        <strong>✨ Animowane światła nocne (Canvas)</strong>
+                        <div class="card-note">Płynne reflektory i iskry (bez YouTube)</div>
+                    </div>
+                    <span id="check-canvas"></span>
+                </div>
+
+                <div class="bg-option-card" id="opt-solid" onclick="setBgMode('solid')">
+                    <div>
+                        <strong>🌑 Czyste ciemne tło</strong>
+                        <div class="card-note">Statyczne tło bez animacji</div>
+                    </div>
+                    <span id="check-solid"></span>
+                </div>
+            </div>
+
+            <label class="form-label">Link do własnego wideo YouTube (dla opcji 2):</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="customYtInput" class="input-field" style="margin-bottom: 0;" placeholder="https://www.youtube.com/watch?v=...">
+                <button type="button" class="btn-primary" onclick="applyCustomYt()">Ustaw</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-admin" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+            <h1 class="hero-title" style="margin:0;">Panel <span>Administratora</span></h1>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button type="button" class="btn-primary" onclick="adminApplyInterest()">📈 Nalicz 7% dziennie wszystkim</button>
+                <button type="button" class="btn-secondary" onclick="adminLogout()">Wyloguj z Admina</button>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 20px;">
+            <h2 class="card-heading">Zarządzanie graczami i weryfikacjami</h2>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nick</th>
+                            <th>Weryfikacja</th>
+                            <th>Kapitał ($)</th>
+                            <th>Bonus ($)</th>
+                            <th>Akcja</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminUsersBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-heading">Zarządzanie pożyczkami</h2>
+            <div id="adminLoansContainer"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="adminModal">
+    <div class="modal-box">
+        <h2 class="card-heading">🔑 Panel administratora</h2>
+        <p class="card-note" style="margin-bottom: 14px;">Wpisz hasło administratora banku AndrzejKotwica.</p>
+        <form onsubmit="handleAdminLogin(event)">
+            <input type="password" id="adminPassInput" class="input-field" placeholder="Hasło administratora" required>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button type="button" class="btn-secondary" onclick="closeAdminModal()">Anuluj</button>
+                <button type="submit" class="btn-primary">Zaloguj</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer>
+    AndrzejKotwica Bank • Nieoficjalny bank gracza AndrzejKotwica • Minecraft • 7% dziennie od kapitału
+</footer>
+
+<script>
+    const ADMIN_PASSWORD = '6jhFlaFKSGOafaOEUP';
+    const STORAGE_KEY = 'andrzejkotwica_bank_db_v2';
+    const SETTINGS_KEY = 'andrzejkotwica_bank_settings_v4';
+    const DEFAULT_YT_ID = 'oBHLy4MRSt8';
+
+    const defaultDB = {
+        users: {
+            'AndrzejKotwica': {
+                nick: 'AndrzejKotwica',
+                verified: true,
+                verify_amount: 0,
+                capital: 2500000,
+                bonus: 175000,
+                last_withdraw: 0
+            }
+        },
+        loans: []
+    };
+
+    const defaultSettings = {
+        bgMode: 'yt-default',
+        customYtId: DEFAULT_YT_ID,
+        soundEnabled: true
+    };
+
+    let db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultDB;
+    let settings = { ...defaultSettings, ...(JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}) };
+    let currentPlayerNick = sessionStorage.getItem('ak_player_nick') || null;
+    let isAdmin = sessionStorage.getItem('ak_is_admin') === 'true';
+
+    function sendYtCommand(func, args = []) {
+        const frame = document.getElementById('ytBgFrame');
+        if (!frame || !frame.contentWindow) return;
+        frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: args }), '*');
+    }
+
+    function updateSoundButtonUI() {
+        const btn = document.getElementById('bgSoundToggle');
+        if (!btn) return;
+        if (settings.soundEnabled) {
+            btn.textContent = '🔊 Dźwięk włączony — Wycisz';
+            btn.classList.remove('muted');
+        } else {
+            btn.textContent = '🔇 Wyciszono — Włącz dźwięk';
+            btn.classList.add('muted');
+        }
+    }
+
+    function syncAudioToIframe() {
+        if (settings.soundEnabled) {
+            sendYtCommand('unMute');
+            sendYtCommand('setVolume', [50]);
+            sendYtCommand('playVideo');
+        } else {
+            sendYtCommand('mute');
+        }
+        updateSoundButtonUI();
+    }
+
+    function buildYtEmbedUrl(videoId, muted) {
+        const m = muted ? 1 : 0;
+        return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${m}&loop=1&playlist=${videoId}&controls=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&iv_load_policy=3`;
+    }
+
+    function getActiveYtId() {
+        return settings.bgMode === 'yt-custom' && settings.customYtId ? settings.customYtId : DEFAULT_YT_ID;
+    }
+
+    function toggleBgSound() {
+        settings.soundEnabled = !settings.soundEnabled;
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        syncAudioToIframe();
+    }
+
+    document.addEventListener('pointerdown', function unlockSoundOnGesture() {
+        if (settings.soundEnabled && (settings.bgMode === 'yt-default' || settings.bgMode === 'yt-custom')) {
+            syncAudioToIframe();
+        }
+    }, { once: true });
+
+    function applyBackgroundMode() {
+        const ytWrapper = document.getElementById('ytBgWrapper');
+        const ytFrame = document.getElementById('ytBgFrame');
+        const canvasEl = document.getElementById('canvasBg');
+        const soundBtn = document.getElementById('bgSoundToggle');
+
+        ['yt-default', 'yt-custom', 'canvas', 'solid'].forEach(mode => {
+            const card = document.getElementById('opt-' + mode);
+            const check = document.getElementById('check-' + mode);
+            if (card && check) {
+                if (settings.bgMode === mode) {
+                    card.classList.add('selected');
+                    check.textContent = '✅';
+                } else {
+                    card.classList.remove('selected');
+                    check.textContent = '';
+                }
+            }
+        });
+
+        if (settings.bgMode === 'yt-default' || settings.bgMode === 'yt-custom') {
+            ytWrapper.style.display = 'block';
+            canvasEl.style.display = 'none';
+            soundBtn.style.display = 'inline-block';
+
+            const activeId = getActiveYtId();
+            const desiredSrc = buildYtEmbedUrl(activeId, !settings.soundEnabled);
+            if (ytFrame && ytFrame.getAttribute('src') !== desiredSrc) {
+                ytFrame.setAttribute('src', desiredSrc);
+            }
+            setTimeout(syncAudioToIframe, 600);
+        } else if (settings.bgMode === 'canvas') {
+            ytWrapper.style.display = 'none';
+            canvasEl.style.display = 'block';
+            soundBtn.style.display = 'none';
+            sendYtCommand('pauseVideo');
+        } else {
+            ytWrapper.style.display = 'none';
+            canvasEl.style.display = 'none';
+            soundBtn.style.display = 'none';
+            sendYtCommand('pauseVideo');
+        }
+        updateSoundButtonUI();
+    }
+
+    function setBgMode(mode) {
+        settings.bgMode = mode;
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        applyBackgroundMode();
+        showAlert('Zmieniono tło strony!', 'success');
+    }
+
+    function extractYouTubeId(url) {
+        const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+        const match = url.match(regExp);
+        return match ? match[1] : (url.length === 11 ? url : null);
+    }
+
+    function applyCustomYt() {
+        const raw = document.getElementById('customYtInput').value.trim();
+        const id = extractYouTubeId(raw);
+        if (!id) {
+            showAlert('Wklej poprawny link do filmu YouTube!', 'error');
+            return;
+        }
+        settings.customYtId = id;
+        settings.bgMode = 'yt-custom';
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        applyBackgroundMode();
+        showAlert('Ustawiono własne wideo w tle!', 'success');
+    }
+
+    function saveDB() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+        renderAll();
+    }
+
+    function showAlert(msg, type = 'success') {
+        const box = document.getElementById('alertBox');
+        box.textContent = msg;
+        box.className = `alert show alert-${type}`;
+        setTimeout(() => {
+            box.classList.remove('show');
+        }, 5000);
+    }
+
+    function formatMoney(num) {
+        return Number(num).toLocaleString('pl-PL') + ' $';
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+        const target = document.getElementById('tab-' + tabName);
+        if (target) target.classList.add('active');
+
+        const activeBtn = document.querySelector(`.nav-btn[data-tab="${tabName}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function handleNickLogin(e) {
+        e.preventDefault();
+        const raw = document.getElementById('nickInput').value.trim();
+        const nick = raw.replace(/[^a-zA-Z0-9_]/g, '');
+
+        if (nick.length < 3 || nick.length > 16) {
+            showAlert('Podaj poprawny nick z Minecrafta (3-16 znaków).', 'error');
+            return;
+        }
+
+        if (!db.users[nick]) {
+            db.users[nick] = {
+                nick: nick,
+                verified: false,
+                verify_amount: Math.floor(Math.random() * (500 - 67 + 1)) + 67,
+                capital: 0,
+                bonus: 0,
+                last_withdraw: 0
+            };
+        }
+
+        currentPlayerNick = nick;
+        sessionStorage.setItem('ak_player_nick', nick);
+        saveDB();
+    }
+
+    function handlePlayerLogout() {
+        currentPlayerNick = null;
+        sessionStorage.removeItem('ak_player_nick');
+        renderAll();
+    }
+
+    function handleWithdraw() {
+        if (!currentPlayerNick || !db.users[currentPlayerNick]) return;
+        const user = db.users[currentPlayerNick];
+        const now = Math.floor(Date.now() / 1000);
+
+        if (now - user.last_withdraw < 300) {
+            const left = 300 - (now - user.last_withdraw);
+            showAlert(`Limit wypłat: odczekaj jeszcze ${left} sek.`, 'error');
+            return;
+        }
+
+        user.last_withdraw = now;
+        saveDB();
+        showAlert('Zgłoszono wypłatę! AndrzejKotwica przeleje środki w grze w ciągu kilku minut.', 'success');
+    }
+
+    function handleLoanSubmit(e) {
+        e.preventDefault();
+        const amount = parseInt(document.getElementById('loanAmountInput').value, 10);
+        const reason = document.getElementById('loanReasonInput').value.trim();
+
+        if (!currentPlayerNick || !db.users[currentPlayerNick]?.verified) {
+            showAlert('Musisz mieć zweryfikowane konto!', 'error');
+            return;
+        }
+
+        if (isNaN(amount) || amount < 10000) {
+            showAlert('Minimalna kwota pożyczki to 10 000 $.', 'error');
+            return;
+        }
+
+        db.loans.push({
+            id: Date.now().toString(),
+            nick: currentPlayerNick,
+            amount: amount,
+            reason: reason,
+            status: 'Oczekuje'
+        });
+
+        saveDB();
+        showAlert('Wniosek o pożyczkę został wysłany do AndrzejKotwica!', 'success');
+    }
+
+    function openAdminModal() {
+        document.getElementById('adminModal').classList.add('open');
+        document.getElementById('adminPassInput').focus();
+    }
+    function closeAdminModal() {
+        document.getElementById('adminModal').classList.remove('open');
+        document.getElementById('adminPassInput').value = '';
+    }
+
+    function handleAdminLogin(e) {
+        e.preventDefault();
+        const pass = document.getElementById('adminPassInput').value;
+        if (pass === ADMIN_PASSWORD) {
+            isAdmin = true;
+            sessionStorage.setItem('ak_is_admin', 'true');
+            closeAdminModal();
+            renderAll();
+            switchTab('admin');
+            showAlert('Zalogowano do panelu administratora.', 'success');
+        } else {
+            showAlert('Nieprawidłowe hasło administratora!', 'error');
+        }
+    }
+
+    function adminLogout() {
+        isAdmin = false;
+        sessionStorage.removeItem('ak_is_admin');
+        renderAll();
+        switchTab('account');
+    }
+
+    function adminVerifyUser(nick) {
+        if (db.users[nick]) {
+            db.users[nick].verified = true;
+            saveDB();
+            showAlert(`Konto gracza ${nick} zostało zweryfikowane.`, 'success');
+        }
+    }
+
+    function adminSaveBalance(nick) {
+        const capInput = document.getElementById(`cap-${nick}`);
+        const bonInput = document.getElementById(`bon-${nick}`);
+        if (db.users[nick] && capInput && bonInput) {
+            db.users[nick].capital = parseInt(capInput.value, 10) || 0;
+            db.users[nick].bonus = parseInt(bonInput.value, 10) || 0;
+            saveDB();
+            showAlert(`Zaktualizowano saldo gracza ${nick}.`, 'success');
+        }
+    }
+
+    function adminDeleteUser(nick) {
+        if (nick === 'AndrzejKotwica') return;
+        delete db.users[nick];
+        if (currentPlayerNick === nick) handlePlayerLogout();
+        saveDB();
+        showAlert(`Usunięto konto gracza ${nick}.`, 'success');
+    }
+
+    function adminApplyInterest() {
+        Object.values(db.users).forEach(u => {
+            if (u.verified && u.capital >= 50000) {
+                u.bonus += Math.round(u.capital * 0.07);
+            }
+        });
+        saveDB();
+        showAlert('Naliczono 7% dziennego bonusu dla wszystkich zweryfikowanych kont (od 50 000 $)!', 'success');
+    }
+
+    function adminLoanDecision(loanId, status) {
+        const loan = db.loans.find(l => l.id === loanId);
+        if (loan) {
+            loan.status = status;
+            if (status === 'Zatwierdzona' && db.users[loan.nick]) {
+                db.users[loan.nick].capital += loan.amount;
+            }
+            saveDB();
+            showAlert(`Zmieniono status wniosku na: ${status}.`, 'success');
+        }
+    }
+
+    function loadSpotifyEmbed(savedUrl = null) {
+        const input = document.getElementById('spotifyUrlInput');
+        const rawUrl = savedUrl || input.value.trim();
+        if (!rawUrl) return;
+
+        const match = rawUrl.match(/open\.spotify\.com\/(intl-[a-z]+\/)?(playlist|album|track|artist)\/([a-zA-Z0-9]+)/);
+        if (match) {
+            const type = match[2];
+            const id = match[3];
+            const embedUrl = `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`;
+            document.getElementById('spotifyPlayerContainer').innerHTML = `
+                <iframe style="border-radius:12px" src="${embedUrl}" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            `;
+            localStorage.setItem('andrzej_bank_spotify', rawUrl);
+        } else if (!savedUrl) {
+            showAlert('Wklej poprawny link ze Spotify (np. https://open.spotify.com/playlist/...)', 'error');
+        }
+    }
+
+    function renderAll() {
+        document.getElementById('adminNavBtn').style.display = isAdmin ? 'flex' : 'none';
+        document.getElementById('adminModalTrigger').style.display = isAdmin ? 'none' : 'inline-flex';
+
+        const playerSec = document.getElementById('playerSection');
+        const player = currentPlayerNick ? db.users[currentPlayerNick] : null;
+
+        if (!player) {
+            playerSec.innerHTML = `
+                <h2 class="card-heading">Logowanie gracza</h2>
+                <form onsubmit="handleNickLogin(event)">
+                    <label class="form-label" for="nickInput">Nick Minecraft</label>
+                    <input type="text" id="nickInput" class="input-field" placeholder="Twój nick" required>
+                    <button type="submit" class="btn-primary" style="width:100%;">Przejdź do potwierdzenia</button>
+                </form>
+                <p class="verify-info">
+                    Weryfikacja konta: 67–500 $ na <strong>/pay AndrzejKotwica</strong>. Samo wpisanie nicku nie daje dostępu.
+                </p>
+            `;
+        } else if (!player.verified) {
+            playerSec.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <h2 class="card-heading" style="margin:0;">Gracz: <span style="color:var(--accent-yellow);">${player.nick}</span></h2>
+                    <button type="button" class="btn-secondary" style="padding:6px 12px;" onclick="handlePlayerLogout()">Wyloguj</button>
+                </div>
+                <div style="background: rgba(247, 201, 72, 0.12); border: 1px solid var(--accent-yellow); padding: 14px; border-radius: 10px;">
+                    <strong style="color: var(--accent-yellow);">Wymagana weryfikacja konta!</strong><br>
+                    <span style="font-size: 13px;">
+                        Wejdź na BananaSMP i wpisz komendę:<br>
+                        <code style="background:#0a110e; padding:4px 8px; border-radius:6px; display:inline-block; margin-top:6px; color:#4ade80;">
+                            /pay AndrzejKotwica ${player.verify_amount}
+                        </code>
+                    </span>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+                        Po przelaniu kwoty weryfikacyjnej AndrzejKotwica zatwierdzi Twoje konto w panelu.
+                    </p>
+                </div>
+            `;
+        } else {
+            playerSec.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <h2 class="card-heading" style="margin:0;">Gracz: <span style="color:var(--accent-yellow);">${player.nick}</span></h2>
+                    <button type="button" class="btn-secondary" style="padding:6px 12px;" onclick="handlePlayerLogout()">Wyloguj</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div style="background: var(--input-bg); padding: 14px; border-radius: 10px; border: 1px solid var(--card-border);">
+                        <div style="font-size: 12px; color: var(--text-muted);">Kapitał główny</div>
+                        <div style="font-size: 20px; font-weight: 800; margin-top: 4px;">${formatMoney(player.capital)}</div>
+                    </div>
+                    <div style="background: var(--input-bg); padding: 14px; border-radius: 10px; border: 1px solid var(--card-border);">
+                        <div style="font-size: 12px; color: var(--text-muted);">Naliczony bonus (7%)</div>
+                        <div style="font-size: 20px; font-weight: 800; color: var(--accent-yellow); margin-top: 4px;">${formatMoney(player.bonus)}</div>
+                    </div>
+                </div>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+                    Aby wpłacić środki na lokatę (min. 50 000 $), użyj <strong>/pay AndrzejKotwica [kwota]</strong> w grze.
+                </p>
+                <button type="button" class="btn-primary" onclick="handleWithdraw()">💸 Zleć wypłatę środków</button>
+            `;
+        }
+
+        const rankingBody = document.getElementById('rankingBody');
+        const sorted = Object.values(db.users).sort((a, b) => (b.capital + b.bonus) - (a.capital + a.bonus));
+        rankingBody.innerHTML = sorted.map((u, idx) => `
+            <tr>
+                <td><strong>${idx + 1}.</strong></td>
+                <td>${u.nick}</td>
+                <td>${u.verified ? '<span class="badge badge-ok">Zweryfikowany</span>' : '<span class="badge badge-wait">Oczekuje</span>'}</td>
+                <td>${formatMoney(u.capital)}</td>
+                <td style="color: var(--accent-yellow);">${formatMoney(u.bonus)}</td>
+            </tr>
+        `).join('');
+
+        const loanFormCont = document.getElementById('loanFormContainer');
+        if (player && player.verified) {
+            loanFormCont.innerHTML = `
+                <form onsubmit="handleLoanSubmit(event)">
+                    <label class="form-label">Kwota pożyczki ($)</label>
+                    <input type="number" id="loanAmountInput" class="input-field" min="10000" step="1000" placeholder="np. 100000" required>
+                    <label class="form-label">Cel pożyczki / zabezpieczenie na BananaSMP</label>
+                    <input type="text" id="loanReasonInput" class="input-field" placeholder="np. Rozbudowa bazy / handel na AH" required>
+                    <button type="submit" class="btn-primary">Wyślij wniosek</button>
+                </form>
+            `;
+        } else {
+            loanFormCont.innerHTML = `<p class="card-note">Musisz zalogować się i zweryfikować swoje konto w zakładce <strong>Moje konto</strong>, aby złożyć wniosek o pożyczkę.</p>`;
+        }
+
+        const loansListCont = document.getElementById('loansListContainer');
+        if (db.loans.length === 0) {
+            loansListCont.innerHTML = `<p class="card-note">Brak złożonych wniosków o pożyczkę.</p>`;
+        } else {
+            loansListCont.innerHTML = `
+                <table>
+                    <thead><tr><th>Gracz</th><th>Kwota</th><th>Status</th></tr></thead>
+                    <tbody>
+                        ${[...db.loans].reverse().map(l => `
+                            <tr>
+                                <td>${l.nick}</td>
+                                <td>${formatMoney(l.amount)}</td>
+                                <td><span class="badge ${l.status === 'Zatwierdzona' ? 'badge-ok' : (l.status === 'Odrzucona' ? 'badge-err' : 'badge-wait')}">${l.status}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        if (isAdmin) {
+            const adminUsersBody = document.getElementById('adminUsersBody');
+            adminUsersBody.innerHTML = Object.values(db.users).map(u => `
+                <tr>
+                    <td><strong>${u.nick}</strong></td>
+                    <td>
+                        ${u.verified
+                            ? '<span class="badge badge-ok">Tak</span>'
+                            : `<span class="badge badge-wait">Kwota: ${u.verify_amount} $</span>
+                               <button type="button" class="btn-primary" style="padding:4px 10px; font-size:12px; margin-left:6px;" onclick="adminVerifyUser('${u.nick}')">Zatwierdź</button>`
+                        }
+                    </td>
+                    <td><input type="number" id="cap-${u.nick}" value="${u.capital}" class="input-field" style="width:120px; margin:0; padding:6px 10px;"></td>
+                    <td><input type="number" id="bon-${u.nick}" value="${u.bonus}" class="input-field" style="width:120px; margin:0; padding:6px 10px;"></td>
+                    <td>
+                        <button type="button" class="btn-secondary" style="padding:6px 10px;" onclick="adminSaveBalance('${u.nick}')">Zapisz</button>
+                        ${u.nick !== 'AndrzejKotwica' ? `<button type="button" class="btn-secondary" style="padding:6px 10px; border-color:#ef4444; color:#fca5a5;" onclick="adminDeleteUser('${u.nick}')">Usuń</button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+
+            const adminLoansCont = document.getElementById('adminLoansContainer');
+            if (db.loans.length === 0) {
+                adminLoansCont.innerHTML = `<p class="card-note">Brak wniosków o pożyczki.</p>`;
+            } else {
+                adminLoansCont.innerHTML = `
+                    <table>
+                        <thead><tr><th>Gracz</th><th>Kwota</th><th>Powód</th><th>Status</th><th>Decyzja</th></tr></thead>
+                        <tbody>
+                            ${db.loans.map(l => `
+                                <tr>
+                                    <td>${l.nick}</td>
+                                    <td>${formatMoney(l.amount)}</td>
+                                    <td>${l.reason}</td>
+                                    <td>${l.status}</td>
+                                    <td>
+                                        <button type="button" class="btn-primary" style="padding:4px 10px; font-size:12px;" onclick="adminLoanDecision('${l.id}', 'Zatwierdzona')">Zatwierdź</button>
+                                        <button type="button" class="btn-secondary" style="padding:4px 10px; font-size:12px;" onclick="adminLoanDecision('${l.id}', 'Odrzucona')">Odrzuć</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+        }
+    }
+
+    (function initCanvasBackground() {
+        const canvas = document.getElementById('canvasBg');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width, height, time = 0;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const particles = Array.from({ length: 50 }, () => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: Math.random() * 2.2 + 0.6,
+            vy: -Math.random() * 0.5 - 0.15,
+            alpha: Math.random() * 0.5 + 0.15
+        }));
+
+        function draw() {
+            if (settings.bgMode === 'canvas') {
+                time += 0.015;
+                ctx.fillStyle = '#070d0a';
+                ctx.fillRect(0, 0, width, height);
+
+                const g1x = width * (0.7 + Math.sin(time * 0.7) * 0.15);
+                const g1y = height * (0.3 + Math.cos(time * 0.5) * 0.12);
+                const grad = ctx.createRadialGradient(g1x, g1y, 20, g1x, g1y, Math.max(width, height) * 0.55);
+                grad.addColorStop(0, 'rgba(34, 197, 94, 0.22)');
+                grad.addColorStop(1, 'rgba(7, 13, 10, 0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, width, height);
+
+                particles.forEach(p => {
+                    p.y += p.vy;
+                    if (p.y < -10) { p.y = height + 10; p.x = Math.random() * width; }
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(247, 201, 72, ${p.alpha})`;
+                    ctx.fill();
+                });
+            }
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedSpotify = localStorage.getItem('andrzej_bank_spotify');
+        if (savedSpotify) {
+            document.getElementById('spotifyUrlInput').value = savedSpotify;
+            loadSpotifyEmbed(savedSpotify);
+        }
+
+        if (settings.customYtId && settings.customYtId !== DEFAULT_YT_ID) {
+            document.getElementById('customYtInput').value = `https://www.youtube.com/watch?v=${settings.customYtId}`;
+        }
+
+        applyBackgroundMode();
+        renderAll();
+    });
+</script>
+
+</body>
+</html>
